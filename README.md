@@ -17,7 +17,7 @@ The feedback data is also saved in JSON format in Amazon S3 so that it can be qu
 
 ## Example Feedback Report:
 
-#### Example email report for an serverlessland.com crawled chatbot.  
+#### Example email report for a serverlessland.com crawled chatbot.  
 
 ```
 Here is the content report for the given user feedback:

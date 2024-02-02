@@ -1,0 +1,7 @@
+{
+    "from_email": "YOUR_FROM_EMAIL",
+    "to_email": "YOUR_TO_EMAIL",
+    "classification": "confidential",
+    "modelid": "anthropic.claude-v2",
+    "application_id": "xxxxx-xxxxx-xxxx-xxxx-xxxxx"
+}

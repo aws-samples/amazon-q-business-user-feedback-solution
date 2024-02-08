@@ -199,7 +199,7 @@ class QLambdaStack(Stack):
             'physical_resource_id': PhysicalResourceId.of("ses_"+ strftime("%Y%m%d%H%M%S"))      
         },
         policy=AwsCustomResourcePolicy.from_sdk_calls(
-            resources=[f"arn:aws:ses:{Aws.REGION}:{Aws.ACCOUNT_ID}:identity/{self.from_email}"])
+            resources=["*"])
         )
 
         # Outputting the name of the bucket created

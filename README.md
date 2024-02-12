@@ -142,9 +142,6 @@ cd amazon-q-business-user-feedback-solution/cdk
 
 ./cdk_deploy.sh
 ```
-## Notes
-
-The current solution does not include deploying a Glue Crawler to catalog the logged feedback data in the Glue catalog. However, you can enhance it by adding a Glue crawler for the S3 bucket, allowing you to query the data in Athena or generate reports using Amazon QuickSight.
 
 ## Cleanup
 

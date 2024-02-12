@@ -7,7 +7,7 @@ from typing import Dict, List, Optional
 from botocore.exceptions import ClientError
 
 logger = logging.getLogger()
-logger.setLevel(logging.INFO)
+logger.setLevel(logging.ERROR)
 
 # Business Q client
 client = boto3.client('qbusiness')

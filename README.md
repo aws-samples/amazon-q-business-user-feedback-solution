@@ -66,8 +66,6 @@ Here are some specific examples that could be added to the content sources:
 
 ```
 
-
-
 # Deploying the Amazon Q (Manual Steps)
 
 [Steps for deploying your Amazon Q web experience](https://docs.aws.amazon.com/amazonq/latest/business-use-dg/deploy-instructions.html)
@@ -142,9 +140,6 @@ cd amazon-q-business-user-feedback-solution/cdk
 
 ./cdk_deploy.sh
 ```
-## Notes
-
-The current solution does not include deploying a Glue Crawler to catalog the logged feedback data in the Glue catalog. However, you can enhance it by adding a Glue crawler for the S3 bucket, allowing you to query the data in Athena or generate reports using Amazon QuickSight.
 
 ## Cleanup
 

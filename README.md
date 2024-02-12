@@ -66,8 +66,6 @@ Here are some specific examples that could be added to the content sources:
 
 ```
 
-
-
 # Deploying the Amazon Q (Manual Steps)
 
 [Steps for deploying your Amazon Q web experience](https://docs.aws.amazon.com/amazonq/latest/business-use-dg/deploy-instructions.html)

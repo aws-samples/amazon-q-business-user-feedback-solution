@@ -249,6 +249,29 @@ class QLambdaStack(Stack):
             )
         )
 
+        self.glue_crawler_role.attach_inline_policy(
+            iam.Policy(
+                self,
+                "glue_crawler_sqs_role_policy",
+                statements=[
+                    iam.PolicyStatement(
+                        actions=[
+                            "sqs:DeleteMessage",
+                            "sqs:GetQueueUrl",
+                            "sqs:ListDeadLetterSourceQueues",                
+                            "sqs:ReceiveMessage",
+                            "sqs:GetQueueAttributes",
+                            "sqs:ListQueueTags",
+                            "sqs:SetQueueAttributes",
+                            "sqs:PurgeQueue"
+                        ],
+                        resources=[f"{self.event_queue.queue_arn}"]
+                    )
+                ]
+            )
+        )
+
+
         # Add managed policies to Glue crawler role
         self.glue_crawler_role.add_managed_policy(
             iam.ManagedPolicy.from_aws_managed_policy_name('service-role/AWSGlueServiceRole'))
@@ -270,13 +293,10 @@ class QLambdaStack(Stack):
             name= f"{self.glue_database_name}-crawler",
             role=self.glue_crawler_role.role_arn,
             database_name=self.glue_database_name,
-            schedule=glue.CfnCrawler.ScheduleProperty(
-            schedule_expression="cron(0/10 * * * ? *)"
-            ),
             targets=glue.CfnCrawler.TargetsProperty(
                 s3_targets= [glue.CfnCrawler.S3TargetProperty(
-                    path=f"s3://{self.data_bucket.bucket_name}/{self.glue_database_name}/",
-                    exclusions= ["glue-scripts/**"],
+                    path=f"s3://{self.data_bucket.bucket_name}/{self.glue_database_name}/business_q_feedback/",
+                    exclusions= ["Unsaved","athena_query_result/**"],
                     sample_size=100,
                     event_queue_arn=self.event_queue.queue_arn
                 )]

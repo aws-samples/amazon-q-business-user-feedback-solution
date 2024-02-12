@@ -42,7 +42,6 @@ NagSuppressions.add_stack_suppressions(
     ],
 )
 
-
 Aspects.of(app).add(AwsSolutionsChecks())
 
 app.synth()

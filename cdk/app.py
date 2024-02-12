@@ -30,9 +30,18 @@ NagSuppressions.add_stack_suppressions(
         {
             "id": "AwsSolutions-IAM5",
             "reason": "Using CDK S3 grant write permissions.",
+        },
+        {
+            "id": "AwsSolutions-SQS3",
+            "reason": "DLQ not used for Glue crawler for sample.",
+        },
+        {
+            "id": "AwsSolutions-ATH1",
+            "reason": " Athena workgroup uses SSE_S3 encryption.",
         }
     ],
 )
+
 
 Aspects.of(app).add(AwsSolutionsChecks())
 

@@ -1,7 +1,8 @@
 {
-    "from_email": "YOUR_FROM_EMAIL",
-    "to_email": "YOUR_TO_EMAIL",
+    "from_email": "",
+    "to_email": "",
     "classification": "confidential",
     "modelid": "anthropic.claude-v2",
-    "application_id": "xxxxx-xxxxx-xxxx-xxxx-xxxxx"
+    "application_id": "",
+    "glue_database": "business_q_feedback"
 }

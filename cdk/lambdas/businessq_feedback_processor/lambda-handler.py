@@ -17,14 +17,12 @@ s3 = boto3.client('s3')
 
 # Bedrock client used to interact with APIs around models
 bedrock = boto3.client(
-    service_name='bedrock', 
-    region_name='us-east-1'
+    service_name='bedrock'
 )
     
 # Bedrock Runtime client used to invoke and question the models
 bedrock_runtime = boto3.client(
-    service_name='bedrock-runtime', 
-    region_name='us-east-1'
+    service_name='bedrock-runtime'
 )
 
 # SES for report sending
@@ -32,7 +30,7 @@ ses = boto3.client('ses')
 
 # sink the feedback json to the s3 bucket
 s3_bucket = os.environ['S3_DATA_BUCKET']
-
+glue_database_name = os.environ['GLUE_DATABASE_NAME']
 model_id = os.environ['MODELID']
 
 
@@ -201,7 +199,7 @@ def lambda_handler(event, context):
             logger.info(response_data)
             
             current_date = datetime.now()
-            key = f'feedback/year={current_date.year}/month={current_date.strftime("%m")}/day={current_date.strftime("%d")}/{message_ID}.json'
+            key = f'{glue_database_name}/feedback/year={current_date.year}/month={current_date.strftime("%m")}/day={current_date.strftime("%d")}/{message_ID}.json'
             
             bucket_name = s3_bucket
             s3.put_object(Body=response_data, Bucket=bucket_name, Key=key)

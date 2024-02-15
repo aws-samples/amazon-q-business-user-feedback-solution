@@ -65,6 +65,15 @@ Here are some specific examples that could be added to the content sources:
 
 
 ```
+## Example QuickSight Charts:
+
+![Alt text](quicksight_chart.png?raw=true "Architecture")
+
+![Alt text](quicksight_chart2.png?raw=true "Architecture")
+
+
+
+
 
 # Deploying the Amazon Q (Manual Steps)
 
@@ -141,6 +150,37 @@ cd amazon-q-business-user-feedback-solution/cdk
 ./cdk_deploy.sh
 ```
 
+
+## Creating a dataset using Amazon Athena data (Manual)
+
+### Creating a dataset using Amazon Athena data
+
+To create a dataset using Amazon Athena data, follow these steps:
+
+1. Open the [Amazon QuickSight documentation](https://docs.aws.amazon.com/quicksight/latest/user/create-a-data-set-athena.html) page.
+
+2. Follow the instructions provided on the page to set up the necessary permissions and prerequisites for using Amazon Athena with QuickSight.
+
+3. Once you have completed the prerequisites, proceed to creating a dataset in QuickSight.
+
+4. In QuickSight, navigate to the "Manage Data" section and click on "New data set".
+
+5. Select "Athena" as your data source.
+
+6. Provide the necessary details such as the AWS region, database name, and table name for your Athena data source.
+
+7. Configure additional options such as specifying custom SQL queries or applying filters to your data if required.
+
+8. Click on "Create data source" to create the dataset using Amazon Athena data.
+
+9. You can now use this dataset to create visualizations and analyze your data in Amazon QuickSight.
+
+For more detailed instructions and information, refer to the [Amazon QuickSight documentation](https://docs.aws.amazon.com/quicksight/latest/user/create-a-data-set-athena.html).
+
+
+Also see the Steps for Setting S3 Permissions  https://docs.aws.amazon.com/quicksight/latest/user/troubleshoot-athena-insufficient-permissions.html
+
+
 ## Cleanup
 
 When you are finished experimenting with this solution, clean up your resources by running the command:
@@ -163,3 +203,5 @@ This library is licensed under the MIT-0 License. See the LICENSE file.
 1. [What is Amazon Q (For Business Use)?](https://docs.aws.amazon.com/amazonq/latest/business-use-dg/what-is.html)
 2. [Managing Amazon Q applications](https://docs.aws.amazon.com/amazonq/latest/business-use-dg/supported-app-actions.html)
 3. [Logging Amazon Q API calls using AWS CloudTrail](https://docs.aws.amazon.com/amazonq/latest/business-use-dg/logging-using-cloudtrail.html)
+4. [Creating a dataset using Amazon Athena data](https://docs.aws.amazon.com/quicksight/latest/user/create-a-data-set-athena.html)
+5. [Insufficient permissions when using Athena with Amazon QuickSight](https://docs.aws.amazon.com/quicksight/latest/user/troubleshoot-athena-insufficient-permissions.html)

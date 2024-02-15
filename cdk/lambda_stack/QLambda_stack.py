@@ -9,8 +9,8 @@ from aws_cdk import (
     aws_cloudtrail as cloudtrail,
     aws_events_targets as targets,
     aws_glue as glue,
-    aws_sqs as _sqs,
-    aws_athena as athena
+    aws_athena as athena,
+    aws_s3_notifications as s3n
 )
 from aws_cdk.custom_resources import (
     AwsCustomResource,
@@ -18,7 +18,7 @@ from aws_cdk.custom_resources import (
     PhysicalResourceId,
 )
 import aws_cdk.aws_glue_alpha as glue_alpha
-from aws_cdk.aws_sqs import DeadLetterQueue, Queue, QueueEncryption
+
 
 class QLambdaStack(Stack):
     def __init__(self, scope: Construct, id: str, **kwargs) -> None:
@@ -121,12 +121,16 @@ class QLambdaStack(Stack):
             },
             layers=[boto_layer]
             )
+        
+ 
 
         # Assigning permissions to the created Lambda function
         self.data_bucket.grant_write(self.consumer_lambda)
         self.consumer_lambda.add_to_role_policy(policy_statement_bedrock)
         self.consumer_lambda.add_to_role_policy(policy_statement_ses)
         self.consumer_lambda.add_to_role_policy(policy_statement_q)
+        
+
         
         # Setting up a CloudTrail 'trail' and sending its logs to CloudWatch
         self.trail = cloudtrail.Trail(self, 'BusinessQCloudTrail',
@@ -209,22 +213,7 @@ class QLambdaStack(Stack):
             resources=["*"])
         )
 
-         # Create an SQS queue for crawler event trigger
-        self.dlq = Queue(
-                self,
-                "MessageDLQ",
-                encryption=QueueEncryption.KMS_MANAGED,
-                enforce_ssl=True,
-                retention_period=Duration.days(14),
-            )
-
-        self.event_queue = _sqs.Queue(self, f"{self.glue_database_name}_s3event_queue", 
-                encryption=QueueEncryption.KMS_MANAGED,
-                enforce_ssl=True,
-                dead_letter_queue=DeadLetterQueue(queue=self.dlq, max_receive_count=5),
-                visibility_timeout=Duration.seconds(300)
-        )
-        
+   
         # Create Glue crawler's IAM role   
         self.glue_crawler_role = iam.Role(
             self, 'GlueCrawlerRole',
@@ -249,29 +238,6 @@ class QLambdaStack(Stack):
             )
         )
 
-        self.glue_crawler_role.attach_inline_policy(
-            iam.Policy(
-                self,
-                "glue_crawler_sqs_role_policy",
-                statements=[
-                    iam.PolicyStatement(
-                        actions=[
-                            "sqs:DeleteMessage",
-                            "sqs:GetQueueUrl",
-                            "sqs:ListDeadLetterSourceQueues",                
-                            "sqs:ReceiveMessage",
-                            "sqs:GetQueueAttributes",
-                            "sqs:ListQueueTags",
-                            "sqs:SetQueueAttributes",
-                            "sqs:PurgeQueue"
-                        ],
-                        resources=[f"{self.event_queue.queue_arn}"]
-                    )
-                ]
-            )
-        )
-
-
         # Add managed policies to Glue crawler role
         self.glue_crawler_role.add_managed_policy(
             iam.ManagedPolicy.from_aws_managed_policy_name('service-role/AWSGlueServiceRole'))
@@ -293,25 +259,29 @@ class QLambdaStack(Stack):
             name= f"{self.glue_database_name}-crawler",
             role=self.glue_crawler_role.role_arn,
             database_name=self.glue_database_name,
+            schedule=glue.CfnCrawler.ScheduleProperty(
+                schedule_expression="cron(0 * * * ? *)"
+                ),
             targets=glue.CfnCrawler.TargetsProperty(
                 s3_targets= [glue.CfnCrawler.S3TargetProperty(
-                    path=f"s3://{self.data_bucket.bucket_name}/{self.glue_database_name}/business_q_feedback/",
+                    path=f"s3://{self.data_bucket.bucket_name}/{self.glue_database_name}/feedback/",
                     exclusions= ["Unsaved","athena_query_result/**"],
-                    sample_size=100,
-                    event_queue_arn=self.event_queue.queue_arn
+                    sample_size=100
                 )]
-            ),
-            schema_change_policy=self.audit_policy,
-            configuration='{"Version":1.0,"CrawlerOutput":{"Partitions":{"AddOrUpdateBehavior":"InheritFromTable"}}}',
-            recrawl_policy=glue.CfnCrawler.RecrawlPolicyProperty(
-                recrawl_behavior='CRAWL_EVENT_MODE'
             )
         )
 
-        #  Create Athena Workgroup 
+
+        # Sample query to list all the USEFULNESS feedback by user.
+        query = '''SELECT userid, query, usefulness, COUNT(*) as count
+                    FROM business_q_feedback
+                    GROUP BY userid, query, usefulness;
+                '''
+        
+       #  Create Athena Workgroup 
         athena_work_group = athena.CfnWorkGroup(
             self,
-            id="WorkGroupAthenaID",
+            id="AthenaWorkGroupAthenaID",
             name="AmazonQ-WorkGroup",
             description="Run athena queries for Amazon Q Feedback",
             recursive_delete_option=True,
@@ -326,22 +296,7 @@ class QLambdaStack(Stack):
                 ),
             )
         )
-
-        # Sample query to list all the USEFULNESS feedback by user.
-        query = '''SELECT userid, query, usefulness, COUNT(*) as count
-                    FROM business_q_feedback
-                    GROUP BY userid, query, usefulness;
-                '''
-
-        # Add a sample query to list all the USEFULNESS feedback by user
-        athena_cfn_named_query = athena.CfnNamedQuery(self, "MyAthenaCfnNamedQuery1",
-            database="default",
-            query_string=query,
-            # the properties below are optional
-            description="Sample Query",
-            name="Sample feedback query",
-            work_group=athena_work_group.name
-            )
+         
 
         # Outputting the name of the bucket created
         CfnOutput(self, "businessq-data-bucket-name", value=self.data_bucket.bucket_name)

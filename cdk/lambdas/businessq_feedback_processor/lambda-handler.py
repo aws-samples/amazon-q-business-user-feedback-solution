@@ -7,7 +7,7 @@ from typing import Dict, List, Optional
 from botocore.exceptions import ClientError
 
 logger = logging.getLogger()
-logger.setLevel(logging.ERROR)
+logger.setLevel(logging.INFO)
 
 # Business Q client
 client = boto3.client('qbusiness')
@@ -173,13 +173,16 @@ def lambda_handler(event, context):
             
             # get the message before to get the AI response
             previous_body = get_previous_body(response['messages'], message_ID)
+            logger.info("debug 00")
             previous_body_source_attribution = get_previous_source_attribution(response['messages'], message_ID)
-            logger.info(json.dumps(previous_body_source_attribution[0]))
+            logger.info("debug 0")
             
-            # get the sourceattribute urls from citations add tot a list
-            source_attribution_urls = extract_urls_from_json(json.dumps(previous_body_source_attribution))
-            logger.info(source_attribution_urls)
+            # check if previous_body_source_attribution is not None
+            if previous_body_source_attribution is not None:
+                # get the sourceattribute urls from citations and add to a list
+                source_attribution_urls = extract_urls_from_json(json.dumps(previous_body_source_attribution))
 
+            logger.info("debug 1")
             # Add message details to the analytics data
             messages_list.append({
                 'messageId': message_ID,
@@ -193,7 +196,7 @@ def lambda_handler(event, context):
                 'userId': userId,
                 'submittedAt': submittedAt
             })
-            
+            logger.info("debug 2")        
             # create json response payload
             response_data = json.dumps(messages_list[0])
             logger.info(response_data)
